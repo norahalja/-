@@ -3,206 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تدشين منصة نوره الجبر</title>
+    <title>تدشين المنصة</title>
     <style>
-        :root {
-            --gold: #c5a059;
-            --soft-gold: #f4e8d1;
-            --white-pearl: #fdfdfd;
-            --text-dark: #333;
-        }
-
-        body, html {
+        /* إعدادات الصفحة العامة */
+        body {
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: var(--white-pearl);
+            background: radial-gradient(circle, #ffffff, #f0f0f0);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* لمنع ظهور شريط التمرير أثناء حركة البالونات */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* خلفية ناعمة مع تدرج لؤلؤي */
-        .bg-overlay {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, #ffffff 0%, #f1f1f1 100%);
-            z-index: 1;
-        }
-
-        /* حاوية الاحتفال */
-        #confetti-canvas {
-            position: absolute;
+        /* حاوية البالونات */
+        #balloon-container {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .main-container {
-            position: relative;
+            pointer-events: none; /* لضمان عدم إعاقة الضغط على الأزرار */
             z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+        }
+
+        /* شكل البالونات */
+        .balloon {
+            position: absolute;
+            bottom: -150px;
+            width: 50px;
+            height: 70px;
+            border-radius: 50% 50% 50% 50% / 45% 45% 55% 55%;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1);
+            animation: flyUp 5s ease-in forwards;
+        }
+
+        /* خيط البالونة */
+        .balloon::before {
+            content: "";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            width: 2px;
+            height: 25px;
+            background: rgba(0,0,0,0.1);
+        }
+
+        @keyframes flyUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-130vh) rotate(20deg); opacity: 0; }
+        }
+
+        /* واجهة الموقع النهائية */
+        #main-content {
             text-align: center;
-        }
-
-        /* إطار الشعار الفاخر */
-        .logo-box {
-            width: 160px;
-            height: 160px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
-            border: 4px solid var(--soft-gold);
-            margin-bottom: 30px;
+            z-index: 20;
             opacity: 0;
-            transform: translateY(-20px);
-            animation: fadeInDown 1.2s forwards ease-out;
+            visibility: hidden;
+            transition: all 2s ease-in-out;
+            transform: translateY(20px);
         }
 
-        .logo-box img {
-            width: 75%;
-            filter: grayscale(20%);
+        #main-content.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
-        /* نصوص الترحيب */
-        .welcome-text h1 {
-            font-size: 3rem;
-            color: var(--text-dark);
-            margin: 0;
-            font-weight: 800;
-            opacity: 0;
-            animation: fadeIn 1.5s 0.5s forwards;
+        h1 {
+            color: #006666; /* لون رسمي */
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
-        .welcome-text p {
-            font-size: 1.4rem;
-            color: var(--gold);
-            margin-top: 10px;
-            letter-spacing: 2px;
-            opacity: 0;
-            animation: fadeIn 1.5s 0.8s forwards;
-        }
-
-        /* زر التدشين الرسمي */
-        .btn-launch {
-            margin-top: 40px;
-            padding: 16px 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
+        .enter-btn {
+            background: linear-gradient(135deg, #006666, #004d4d);
             color: white;
-            background: linear-gradient(45deg, #c5a059, #e2c285);
+            padding: 18px 45px;
             border: none;
             border-radius: 50px;
+            font-size: 22px;
+            font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 10px 20px rgba(197, 160, 89, 0.3);
-            transition: all 0.3s ease;
-            opacity: 0;
-            animation: fadeInUp 1s 1.2s forwards;
+            box-shadow: 0 10px 20px rgba(0, 102, 102, 0.3);
+            transition: 0.4s;
             text-decoration: none;
+            display: inline-block;
         }
 
-        .btn-launch:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 25px rgba(197, 160, 89, 0.4);
-            letter-spacing: 1px;
+        .enter-btn:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0, 102, 102, 0.4);
+            background: linear-gradient(135deg, #008080, #006666);
         }
 
-        /* حركات الظهور */
-        @keyframes fadeInDown {
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        /* قصاصات الورق */
-        .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            opacity: 0.7;
-            animation: fall linear forwards;
-        }
-
-        @keyframes fall {
-            to { transform: translateY(110vh) rotate(720deg); }
+        /* رسالة ترحيبية صغيرة */
+        .welcome-msg {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
         }
     </style>
 </head>
 <body>
 
-    <div class="bg-overlay"></div>
-    <div id="confetti-canvas"></div>
+    <div id="balloon-container"></div>
 
-    <div class="main-container">
-        <div class="logo-box">
-    <img src="a5d9821b-5705-4977-bf54-9a081e9db83d.jpg" alt="">
-        </div>
-
-        <div class="welcome-text">
-            <h1>منصة نوره الجبر</h1>
-            <p> التدشين الرسمي</p>
-        </div>
-
-        <a href="https://norahalja.github.io/norahaljaber-highschool-2026/" class="btn-launch">اضغط  للدخول</a>
+    <div id="main-content">
+        <h1>🎉   مبارك لنا جميعا 🎉</h1>
+        <p class="welcome-msg">مرحباً بكم في المنصة الرقمية الجديدة لثانويه نوره الجبر</p>
+        <a href="https://norahalja.github.io/norahaljaber-highschool-2026/" class="enter-btn">دخول المنصه</a>
     </div>
 
     <script>
-        // دالة إنشاء قصاصات الورق الاحتفالية
-        function createConfetti() {
-            const container = document.getElementById('confetti-canvas');
-            const colors = ['#c5a059', '#e2c285', '#f4e8d1', '#d4af37', '#ffffff'];
+        window.onload = function() {
+            const container = document.getElementById('balloon-container');
+            // مصفوفة الألوان (أخضر موهبة، ذهبي، فضي، تيل)
+            const colors = ['#006666', '#D4AF37', '#C0C0C0', '#008080', '#20B2AA'];
 
-            for (let i = 0; i < 100; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                
-                // خصائص عشوائية لكل قطعة
-                const size = Math.random() * 8 + 5 + 'px';
-                confetti.style.width = size;
-                confetti.style.height = size;
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.top = '-20px';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-                
-                // توقيت عشوائي للسقوط
-                const duration = Math.random() * 3 + 4 + 's';
-                const delay = Math.random() * 5 + 's';
-                confetti.style.animationDuration = duration;
-                confetti.style.animationDelay = delay;
-
-                container.appendChild(confetti);
-
-                // إزالة القطعة بعد انتهاء الحركة لتوفير الأداء
-                setTimeout(() => confetti.remove(), (parseFloat(duration) + parseFloat(delay)) * 1000);
+            // إنشاء 70 بالونة بشكل عشوائي
+            for (let i = 0; i < 70; i++) {
+                setTimeout(() => {
+                    const balloon = document.createElement('div');
+                    balloon.className = 'balloon';
+                    
+                    const leftPos = Math.random() * 100; // مكان الظهور بالعرض
+                    const size = Math.random() * (70 - 45) + 45; // حجم عشوائي
+                    const color = colors[Math.floor(Math.random() * colors.length)]; // لون عشوائي
+                    const duration = Math.random() * (6 - 4) + 4; // سرعة الصعود
+                    
+                    balloon.style.left = leftPos + 'vw';
+                    balloon.style.width = size + 'px';
+                    balloon.style.height = (size * 1.3) + 'px';
+                    balloon.style.backgroundColor = color;
+                    balloon.style.animationDuration = duration + 's';
+                    
+                    container.appendChild(balloon);
+                }, i * 100); // تتابع الظهور كل 100 جزء من الثانية
             }
-        }
 
-        // تشغيل الاحتفال عند التحميل
-        window.onload = () => {
-            createConfetti();
-            // تكرار الاحتفال كل 6 ثوانٍ
-            setInterval(createConfetti, 6000);
+            // إظهار محتوى الموقع والزر بعد 5 ثوانٍ من بدء البالونات
+            setTimeout(() => {
+                const content = document.getElementById('main-content');
+                content.classList.add('show');
+            }, 5500);
         };
     </script>
 </body>
-
 </html>
-
-
